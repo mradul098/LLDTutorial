@@ -22,7 +22,7 @@
 | [11](./11_LLD_Ride_Sharing.md) | LLD Problem: Ride-sharing (Uber) | ✅ |
 | [12](./12_LLD_Food_Delivery.md) | LLD Problem: Food Delivery (Swiggy) | ✅ |
 | [13](./13_Concurrency_in_LLD.md) | Concurrency in LLD | 🔒 |
-| [14](./14_Interview_Playbook.md) | LLD Interview Playbook | 🔒 |
+| [14](./14_Interview_Playbook.md) | LLD Interview Playbook | ✅ |
 | [15](./15_Anti_Patterns.md) | BONUS: Anti-Patterns | 🔒 |
 
 ---
