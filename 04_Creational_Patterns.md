@@ -185,7 +185,7 @@ class NotificationService {
 Define a method (the **factory method**) in a base class that returns an object. Subclasses override this method to return different types.
 
 ```java
-```
+
 interface Notification {
     void send();
 }
@@ -228,6 +228,7 @@ public class Main {
         notification.send();
     }
 }
+```
 
 ### Diagram
 
