@@ -185,91 +185,49 @@ class NotificationService {
 Define a method (the **factory method**) in a base class that returns an object. Subclasses override this method to return different types.
 
 ```java
-// The product interface
+```
 interface Notification {
-    void send(String message);
-    String getType();
+    void send();
 }
 
-// Concrete products
 class EmailNotification implements Notification {
-    private String email;
-
-    public EmailNotification(String email) { this.email = email; }
-
-    @Override
-    public void send(String message) {
-        System.out.println("Email to " + email + ": " + message);
+    public void send() {
+        System.out.println("Sending Email");
     }
-
-    @Override
-    public String getType() { return "EMAIL"; }
 }
 
 class SMSNotification implements Notification {
-    private String phoneNumber;
-
-    public SMSNotification(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
-    @Override
-    public void send(String message) {
-        System.out.println("SMS to " + phoneNumber + ": " + message);
-    }
-
-    @Override
-    public String getType() { return "SMS"; }
-}
-
-class PushNotification implements Notification {
-    private String deviceToken;
-
-    public PushNotification(String deviceToken) { this.deviceToken = deviceToken; }
-
-    @Override
-    public void send(String message) {
-        System.out.println("Push to device " + deviceToken + ": " + message);
-    }
-
-    @Override
-    public String getType() { return "PUSH"; }
-}
-
-// Creator — defines the factory method
-abstract class NotificationService {
-    // The factory method — subclasses override this
-    protected abstract Notification createNotification(String recipient);
-
-    // Template method using the factory
-    public void send(String recipient, String message) {
-        Notification notification = createNotification(recipient);
-        System.out.println("Sending " + notification.getType() + " notification...");
-        notification.send(message);
+    public void send() {
+        System.out.println("Sending SMS");
     }
 }
 
-// Concrete creators — each knows how to create their type
-class EmailNotificationService extends NotificationService {
-    @Override
-    protected Notification createNotification(String recipient) {
-        return new EmailNotification(recipient);
+class NotificationFactory {
+
+    public static Notification createNotification(String type) {
+
+        if (type.equalsIgnoreCase("EMAIL")) {
+            return new EmailNotification();
+        }
+
+        if (type.equalsIgnoreCase("SMS")) {
+            return new SMSNotification();
+        }
+
+        throw new IllegalArgumentException("Invalid notification type");
     }
 }
 
-class SMSNotificationService extends NotificationService {
-    @Override
-    protected Notification createNotification(String recipient) {
-        return new SMSNotification(recipient);
+public class Main {
+
+    public static void main(String[] args) {
+
+        Notification notification =
+                NotificationFactory.createNotification("EMAIL");
+
+        notification.send();
     }
 }
-
-// Usage
-NotificationService service = new EmailNotificationService();
-service.send("user@example.com", "Your order is confirmed!");
-
-// Switch to SMS? Just change the service, not the logic
-service = new SMSNotificationService();
-service.send("+919999999999", "Your OTP is 1234");
-```
 
 ### Diagram
 
