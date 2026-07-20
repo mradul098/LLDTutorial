@@ -356,6 +356,80 @@ class CachedVideoServiceProxy implements VideoService {
         return videoData;
     }
 }
+
+btw this doesnt technically have lazy initialisation we are initialising it verytime we initialise the cachedvideoservice so for this we use the singleton design pattern now we can achieve this easily using something like this 
+
+if(realvideoservice==null){
+    realvideoservice=new .....
+}
+
+but this is not thread safe what if two different threads enter the same code block and then there would be two initialisation.
+
+so there are two ways to deal with this one with the double check locking (High performace way)
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+class CachedVideoServiceProxy implements VideoService {
+    // volatile ensures changes made by one thread are immediately visible to others
+    private volatile RealVideoService realService = null; 
+    // ConcurrentHashMap handles thread-safe atomic operations on the cache
+    private final Map<String, byte[]> cache = new ConcurrentHashMap<>();
+
+    public CachedVideoServiceProxy() {}
+
+    @Override
+    public byte[] downloadVideo(String videoId) {
+        // 1. Thread-safe cache check
+        if (cache.containsKey(videoId)) {
+            System.out.println("Serving video " + videoId + " from local cache.");
+            return cache.get(videoId);
+        }
+        
+        // 2. Double-checked locking for Lazy Initialization
+        if (realService == null) { // First check (no locking friction)
+            synchronized (this) {
+                if (realService == null) { // Second check (inside lock)
+                    System.out.println("Thread-safe initialization of RealVideoService...");
+                    realService = new RealVideoService();
+                }
+            }
+        }
+        
+        // 3. Atomically compute and put if absent to prevent duplicate heavy downloads
+        // for the same video ID across concurrent threads.
+        return cache.computeIfAbsent(videoId, id -> realService.downloadVideo(id));
+    }
+}
+
+and second is the initialisation on demad way (the most clean , this is the one we learnt in the singleton design pattern)
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+class CachedVideoServiceProxy implements VideoService {
+    private final Map<String, byte[]> cache = new ConcurrentHashMap<>();
+
+    // The JVM guarantees that this inner class is not loaded into memory 
+    // until 'Holder.INSTANCE' is explicitly referenced. 
+    private static class Holder {
+        private static final RealVideoService INSTANCE = new RealVideoService();
+    }
+
+    public CachedVideoServiceProxy() {}
+
+    @Override
+    public byte[] downloadVideo(String videoId) {
+        if (cache.containsKey(videoId)) {
+            return cache.get(videoId);
+        }
+        
+        // Thread-safe, lazy instantiation completely managed by the JVM classloader
+        RealVideoService service = Holder.INSTANCE; 
+        
+        return cache.computeIfAbsent(videoId, service::downloadVideo);
+    }
+}
 ```
 
 ### Diagram
